@@ -3,7 +3,7 @@
 **Diploma project, ITIS "E. Fermi", Mantua, Italy (2018)**
 Original title: *La comunicazione gestuale* ("Gesture communication")
 
-Tilt your hand and the robot drives. An accelerometer on the hand reads the gesture, an Arduino Nano turns it into a 4-bit command, and a 433 MHz radio link sends it to the robot, where a decoder chip drives the motors directly. I wrote the firmware and designed both circuit boards.
+Tilt your hand and the robot drives. An accelerometer on a glove reads the gesture, an Arduino Nano turns it into a 4-bit command, and a 433 MHz radio link sends it to the robot, where a decoder chip drives the motors directly. I wrote the firmware and designed both circuit boards.
 
 <p align="center">
   <img src="pcb/pcb-transmitter.png" alt="Transmitter PCB copper layer" height="260">
@@ -37,19 +37,33 @@ Tilt your hand and the robot drives. An accelerometer on the hand reads the gest
 | Hand flat | 320–380 | 340–395 | 0 | 0 | 0 | 0 | Stop |
 | Tilt forward | 280–340 | 340–395 | 0 | 1 | 1 | 0 | Forward |
 | Tilt back | 380–430 | 340–395 | 1 | 0 | 0 | 1 | Reverse |
-| Tilt to one side | 300–395 | 375–435 | 1 | 0 | 0 | 0 | Turn |
-| Tilt to the other side | 300–395 | 280–325 | 0 | 0 | 0 | 1 | Turn |
+| Tilt right | 300–395 | 375–435 | 1 | 0 | 0 | 0 | Turn right |
+| Tilt left | 300–395 | 280–325 | 0 | 0 | 0 | 1 | Turn left |
 
 The thresholds came from calibrating the accelerometer by hand: I held it in each position and logged the raw ADC values over serial. The "hand flat" check runs first, so it wins where its window overlaps forward.
+
+The program flow, from the original dissertation:
+
+<p align="center"><img src="pcb/flowchart.png" alt="Program flowchart: read X and Y, then check stop, forward, reverse, left and right windows in turn" width="440"></p>
+
+> Note: the inline comments next to the left and right branches in the code are swapped. The comment block at the top of the file and the dissertation flowchart above give the correct labels.
 
 ## Hardware
 
 | Board | Components |
 |-------|-----------|
-| Transmitter (on the hand) | Arduino Nano, ADXL335 / GY-61 accelerometer, HT12E encoder, 433 MHz RF transmitter |
-| Receiver (on the robot) | 433 MHz RF receiver, HT12D decoder, L293D motor driver, 2 DC motors |
+| Transmitter (on a glove) | Arduino Nano, ADXL335 / GY-61 accelerometer, HT12E encoder, 433 MHz RF transmitter |
+| Receiver (on the robot) | 433 MHz RF receiver, HT12D decoder, L293D motor driver, 2 geared DC motors (48:1), status LED, USB-B or battery power |
 
 Both PCBs were designed in **OrCAD / Cadence Allegro 16.6**.
+
+<p align="center">
+  <img src="pcb/schematic-transmitter.png" alt="Transmitter schematic: Arduino Nano, GY-61, HT12E and RF transmitter" width="420">
+  <img src="pcb/schematic-receiver.png" alt="Receiver schematic: RF receiver, HT12D, L293D and two motors" width="420">
+</p>
+<p align="center"><sub>Transmitter and receiver schematics (OrCAD Capture, May 2018)</sub></p>
+
+The dissertation suggested uses in remote surveillance and for people in wheelchairs.
 
 ## Files
 
@@ -57,7 +71,7 @@ Both PCBs were designed in **OrCAD / Cadence Allegro 16.6**.
 |------|-----------|
 | `gesture_control_robot.ino` | Transmitter firmware: reads the accelerometer and sets the 4-bit command (comments in Italian) |
 | `motor_test.ino` | Bench test that steps the outputs through each direction every 3 seconds |
-| `pcb/` | Original board files: Gerber artwork (`.art`) and Allegro board files (`.brd`) for the transmitter (`tx`) and receiver (`rx`), plus rendered images |
+| `pcb/` | Original board files: Gerber artwork (`.art`) and Allegro board files (`.brd`) for the transmitter (`tx`) and receiver (`rx`), schematics, the program flowchart and rendered board images |
 
 ## Author
 
